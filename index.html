@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#173d35"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TDL全制覇">
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png">
+<title>TDL 全制覇プランナー</title>
+<style>
+:root{--bg:#f3f5f2;--card:#fff;--ink:#1e2b27;--muted:#66736d;--green:#1d5a49;--line:#dce4df;--red:#b5443c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",sans-serif;padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+header{background:#173d35;color:white;padding:22px 17px 18px}header h1{font-size:22px;margin:0 0 5px}header p{margin:0;color:#d6e5de;font-size:12px}
+main{max-width:760px;margin:auto;padding:14px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:0 0 13px;box-shadow:0 2px 8px #163b2b0a}
+h2{font-size:17px;margin:0 0 12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}input,select,button{font:inherit}input,select{width:100%;border:1px solid #cbd6cf;border-radius:10px;padding:10px;background:white;color:var(--ink);min-height:42px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}button{border:0;border-radius:11px;padding:11px 14px;background:var(--green);color:white;font-weight:650;min-height:42px}button.secondary{background:#e8efeb;color:#244b3d}button.danger{background:#f8e9e7;color:#8d332d}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#f1f6f2;border-radius:12px;padding:10px}.stat b{display:block;font-size:19px}.stat span{font-size:11px;color:var(--muted)}
+.searchrow{display:flex;gap:8px;margin-bottom:10px}.searchrow input{flex:1}
+.item{border:1px solid var(--line);border-radius:12px;padding:11px;margin:8px 0;background:white}
+.itemtop{display:flex;align-items:flex-start;gap:8px}.itemtop strong{font-size:14px;flex:1;line-height:1.4}.itemtop small{color:var(--muted);font-size:11px;white-space:nowrap}
+.fields{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}.fields label{font-size:10px}.fields input,.fields select{padding:7px;min-height:36px;font-size:13px}
+.check{width:20px;height:20px;min-height:0;margin:1px 0 0;accent-color:var(--green)}
+.routeitem{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.num{width:27px;height:27px;border-radius:50%;background:#e3eee8;color:#245441;display:grid;place-items:center;font-weight:700;flex-shrink:0}
+.routeitem b{font-size:13px}.routeitem small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+.main-attractions{margin:12px 0 8px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#f7faf8}
+.main-attractions h3{font-size:14px;margin:0 0 8px}.main-attractions h3 span{font-size:11px;font-weight:500;color:var(--muted);margin-left:5px}
+.main-attractions ul{list-style:none;padding:0;margin:0}.main-attractions li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid var(--line);font-size:12px}.main-attractions li:first-child{border-top:0}.main-attractions li span{white-space:nowrap;color:var(--green);font-weight:700}
+.note{font-size:12px;color:var(--muted);line-height:1.6}.warning{color:var(--red);font-size:12px}
+.hidden{display:none!important}
+@media(max-width:390px){main{padding:10px}.grid{gap:8px}.panel{padding:12px}.fields{grid-template-columns:repeat(2,1fr);gap:6px}}
+
+/* 時間帯別待ち時間設定 */
+.wait-settings-intro{font-size:12px;color:var(--muted);line-height:1.6;margin:-4px 0 12px}
+.wait-area{border:1px solid var(--line);border-radius:12px;margin:9px 0;background:#fff;overflow:hidden}
+.wait-area summary{padding:13px;font-weight:700;font-size:14px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+.wait-area summary::-webkit-details-marker{display:none}
+.wait-area summary:after{content:"＋";color:var(--green);font-size:18px}
+.wait-area[open] summary:after{content:"−"}
+.wait-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-top:1px solid var(--line)}
+.wait-grid{display:grid;grid-template-columns: minmax(145px,1.5fr) repeat(6,minmax(72px,1fr));min-width:590px}
+.wait-grid > div{padding:7px 5px;border-bottom:1px solid #edf1ee;border-right:1px solid #edf1ee;font-size:11px}
+.wait-grid .wait-head{background:#f1f6f2;color:#52635a;font-weight:700;text-align:center;position:sticky;top:0}
+.wait-grid .wait-name{font-size:11px;font-weight:650;display:flex;align-items:center;position:sticky;left:0;background:white;z-index:1}
+.wait-grid .wait-cell{padding:5px}
+.wait-grid input{min-height:38px;padding:6px 3px;text-align:center;font-size:14px;border-radius:8px;width:100%;min-width:0}
+.wait-grid input::placeholder{color:#b2bcb6}
+.wait-save{font-size:11px;color:var(--green);margin-left:7px;font-weight:500}
+.wait-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.wait-tools button{padding:8px 11px;font-size:12px;min-height:36px}
+@media(max-width:390px){.wait-grid{min-width:570px}}
+
+</style></head>
+<body>
+<header><h1>東京ディズニーランド<br>全制覇プランナー</h1><p>iPhone対応・ホーム画面アプリ版 / 入力内容はこの端末に保存</p></header>
+<main>
+<section class="panel">
+<h2>来園条件</h2>
+<div class="grid">
+<div><label>来園日</label><input id="visitDate" type="date"></div>
+<div><label>来園人数（記録用）</label><input id="party" type="number" min="1" value="2"></div>
+<div><label>入園予定</label><input id="start" type="time" value="09:00"></div>
+<div><label>閉園予定</label><input id="end" type="time" value="21:00"></div>
+<div><label>休憩時間（1回あたり・分）</label><input id="breaks" type="number" min="0" value="45"></div>
+<div style="grid-column:1/-1;background:#f1f6f2;border-radius:11px;padding:10px"><label style="display:flex;align-items:center;gap:9px;margin:0;color:var(--ink);font-size:14px;font-weight:650"><input id="attractivenessEnabled" type="checkbox" style="width:20px;min-height:20px;accent-color:var(--green)">魅力点10点超えを計算条件にする</label><p class="note" style="margin:6px 0 0">ON：ルート内の魅力点合計が11点以上になることを優先条件として探索します。達成できない場合は、最も点数が高い候補を表示します。OFF：魅力点を計算条件に含めません。</p></div>
+
+</div>
+
+<div class="actions"><button id="calc">全制覇ルートを計算</button><button class="secondary" id="save">保存</button><button class="secondary" id="reset">初期化</button></div>
+<p class="note">最優先・優先に設定した施設は乗車必須として扱います。訪問順を先頭に固定せず、最優先の達成数、優先の達成数、総体験数の順に候補を比較します。各施設の運営開始・終了時刻、営業開始前の待機、休憩時間を考慮します。候補探索は近似計算で、全順列の完全保証ではありません。2026年11月22日の設定以外は9:00〜21:00の仮設定です。</p><p class="note"><a id="officialHours" href="https://www.tokyodisneyresort.jp/tdl/attraction.html#day=20261122" target="_blank" rel="noopener">選択日の公式アトラクション運営時間を確認</a></p>
+</section>
+<section class="panel">
+<h2>進捗</h2><div class="stats"><div class="stat"><b id="total">35</b><span>登録施設</span></div><div class="stat"><b id="doneCount">0</b><span>体験済み</span></div><div class="stat"><b id="remain">35</b><span>未体験</span></div></div>
+</section>
+<section class="panel" id="routePanel"><h2>計算結果</h2><p class="note" id="routeMsg">条件を入力して「全制覇ルートを計算」を押してください。</p><div id="route"></div></section>
+
+<section class="panel" id="waitSettingsPanel">
+<h2>時間帯別の待ち時間設定 <span id="waitSaved" class="wait-save">自動保存</span></h2>
+<p class="wait-settings-intro">各施設の待ち時間は、設定済みの6つの時間帯別初期値を到着予定時刻に合わせて自動使用します。施設情報欄から個別の待ち時間を入力する必要はありません。必要な場合はこの一覧で時間帯別の想定値を調整できます。</p>
+<div class="wait-tools"><button type="button" class="secondary" id="waitOpenAll">全エリアを開く</button><button type="button" class="secondary" id="waitCloseAll">全エリアを閉じる</button></div>
+<div id="waitSettings"></div>
+</section>
+
+<section class="panel">
+<h2>施設情報</h2><p class="note">施設ごとの優先度、魅力点、体験所要時間、運営開始・終了時刻を設定できます。待ち時間は時間帯別の設定値から自動で選択します。2026年11月22日は、営業時間が9:00〜21:00と異なる8施設の個別時刻を設定しています。別の日付では仮の9:00〜21:00に戻るため、来園日の公式時刻を確認して更新してください。</p><div class="searchrow"><input id="search" placeholder="施設名・エリアで検索"><select id="filter"><option value="all">すべて</option><option value="open">運営予定</option><option value="closed">休止</option><option value="todo">未体験</option><option value="done">体験済み</option></select></div>
+<div id="cards"></div>
+</section>
+<section class="panel"><h2>データのバックアップ</h2><div class="actions"><button class="secondary" id="export">JSONを書き出す</button><button class="secondary" id="importBtn">JSONを読み込む</button><input id="file" type="file" accept="application/json" class="hidden"></div><p class="note">端末変更やブラウザデータ消去に備えて、定期的にJSONを書き出してください。</p></section>
+<section class="panel"><h2>情報の扱いについて</h2><p class="note">施設一覧は公式サイト掲載情報をもとにした初期登録です。公式サイトの運営時間はこのアプリが自動取得するものではありません。2026年11月22日は公式カレンダーの開園・閉園時刻と休止施設を反映し、個別営業時間は登録済みの当日設定を初期値として使用します。別の日付の営業時間は仮設定です。待ち時間・移動時間は予測値であり、全制覇や実際の所要時間を保証しません。</p><p class="note">公式情報：<a href="https://www.tokyodisneyresort.jp/tdl/attraction/" target="_blank">アトラクション一覧</a> ／ <a href="https://www.tokyodisneyresort.jp/tdl/monthly/stop.html" target="_blank">休止情報</a></p></section>
+</main>
+<script src="app.js"></script><script>
+if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script></body></html>
